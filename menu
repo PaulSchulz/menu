@@ -9,7 +9,8 @@ Requirements:
 
 - The menu program should:
   - parse filesystem for menu structure
-  - selecting a menu item should execute script
+  - allow a menu item to be selected and execute script, or
+    enter a subdirectory.
 
 - Menu scripts should:
   - be easy (and possibly automatically) created.
@@ -17,9 +18,7 @@ Requirements:
     executables).
 
 - Scripts should expect that:
-  - The working directory from where the menu program is called. This
-    should commonly be the directory containing the root of the menu
-    tree.
+  - The working directory is where the menu program is called.
 
 - Script naming scheme example
   - 1-menu-item-name
