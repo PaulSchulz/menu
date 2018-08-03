@@ -1,0 +1,166 @@
+#!/usr/bin/lua
+
+local basedir   = "m"
+local directory = {}
+local prompt    = "> "
+
+--[[
+Requirements:
+
+- The menu program should:
+  - parse filesystem for menu structure
+  - selecting a menu item should execute script
+
+- Menu scripts should:
+  - be easy (and possibly automatically) created.
+  - should be standard linux scripts/programs (eg. binaries and
+    executables).
+
+- Scripts should expect that:
+  - The working directory from where the menu program is called. This
+    should commonly be the directory containing the root of the menu
+    tree.
+
+- Script naming scheme example
+  - 1-menu-item-name
+  - 2-another-script
+  - 3-submenu/
+
+- Should be able to follow symbolic links to other menu trees
+
+--]]
+
+-- parse directory for menu script
+-- display menu
+-- get input
+-- run script
+
+function show_splash ()
+   print([[
+ __  __                  
+|  \/  | ___ _ __  _   _ 
+| |\/| |/ _ \ '_ \| | | |
+| |  | |  __/ | | | |_| |
+|_|  |_|\___|_| |_|\__,_|
+
+To exit: C-c C-c
+]])
+end
+
+function make_path (directory)
+   local path = basedir
+   for _,v in ipairs(directory) do
+      path = path.."/"..v
+   end
+   return path
+end
+
+function scandir (directory)
+   local i = 0
+   local t = {}
+   local path = make_path(directory)
+    local pfile = io.popen('ls -F "'..path..'"')
+    for filename in pfile:lines() do
+        i = i + 1
+        t[i] = filename
+--	print(filename)
+    end
+    pfile:close()
+    return t
+end
+
+function show_menu (directory)
+   local items = scandir(directory)
+   local options = {}
+   
+   for _, item in ipairs(items) do
+      local shortcut  = string.sub(item, 1, 1)
+      local label     = string.sub(item, 3, string.len(item)-1) 
+      local type      = string.sub(item, -1)
+
+      local item      = string.sub(item, 1, string.len(item)-1) -- remove type
+
+      --[[
+        @ means symbolic link (or that the file has extended attributes).
+        * means executable.
+	= means socket.
+	| means named pipe.
+        > means door.
+        / means directory.
+      --]]
+
+      if type == '/' then
+	 label = label .. " -->"
+      elseif type == "*" then
+	 label = label
+      end
+      options[shortcut] = {type=type,
+			   item=item,
+			   label=label}
+      print("["..shortcut.."] - "..label)
+   end
+
+   return options
+end
+
+function show_prompt(prompt)
+   io.write(prompt)
+end
+
+function getch_unix() 
+   os.execute("stty cbreak </dev/tty >/dev/tty 2>&1") 
+   local key = io.read(1) 
+   os.execute("stty -cbreak </dev/tty >/dev/tty 2>&1"); 
+   return(key);       
+end 
+
+function get_input()
+   -- return io.read()
+   return getch_unix()
+end
+
+-- Test
+--[[
+for _, v in scandir("m") do
+   print(v)
+end
+--]]
+
+-- Main Loop
+show_splash()
+
+local run = true
+local line = ""
+while run do
+   local options = show_menu(directory)
+
+   -- for k,v in pairs(options) do
+   --    for k1,v1 in pairs(v) do
+   -- 	 print(k,k1,v1)
+   --    end
+   -- end
+
+   show_prompt(prompt)
+   line = get_input()
+   print("")
+   if line == "q" then
+      -- FIXME: The following needs to be fixed.. test for empty directory map.
+      if directory == {} then
+	 run = false
+      else
+	 table.remove(directory)
+      end
+   elseif options[line] then
+      local option = options[line]
+      -- directory (sub-menu)
+      if option["type"] == "/" then
+	 table.insert(directory, option["item"])
+      elseif option["type"] == "*" then
+	 local command = make_path(directory).."/"..option["item"]
+	 os.execute(command)
+      end
+      -- print(option["item"])
+   end
+end
+
+print("")

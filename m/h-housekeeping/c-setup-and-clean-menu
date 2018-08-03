@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd $HOME/Documents/git/menu
+
+find m -name *~ -exec rm {} \;
+find m -type f | xargs -n 1 chmod 775

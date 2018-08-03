@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd ~/Documents/git/openwrt
+./scripts/feeds update -a
