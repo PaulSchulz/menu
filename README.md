@@ -1,4 +1,3 @@
-[TOC]
 # menu
 
 ## Introduction
@@ -6,6 +5,8 @@
 Menu is a keyboard based menu utility, which allows script files to be
 executed by a single keypress. The menu to be displayed is created
 directly from the directory structure and the script names.
+
+This tool is written in Lua.
 
 ## Example
 ```
