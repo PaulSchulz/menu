@@ -8,9 +8,19 @@ directly from the directory structure and the script names.
 
 This tool is written in Lua.
 
+## Usage
+```
+menu [directory]
+
+  The optional [directory] parameter may be an absolute or relative
+  directory path, with or without a trailing '/'.
+
+  The menu scripts are contained in 'm' subdirectory.
+```
+
 ## Example
 ```
-menu$ ./menu
+menu$ ./menu .
 
  _ __ ___   ___ _ __  _   _
 | '_ ` _ \ / _ \ '_ \| | | |
@@ -113,3 +123,6 @@ For  development could be broken up as:
   - get input
   - run script, go up a menu level ot quit
 
+## Contributors
+
+Get you name here.

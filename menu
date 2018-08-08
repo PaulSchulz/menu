@@ -13,10 +13,39 @@ To exit:               C-c C-c
 To go up a menu level: q
 ]]
 
+local cmd
+if arg[1] then
+   basedir = arg[1] .. "/m"
+end
+
+print("Menu base directory: " .. basedir)
+cmd = '[ -e "' .. basedir .. '" ]'
+if os.execute(cmd) then
+   io.write "  it exists"
+   cmd = '[ -d "' .. basedir .. '" ]'
+   if os.execute(cmd) then
+      io.write " and is a directory"
+   else
+      io.write " but is isn't a directory"
+   end
+   io.write "\n"
+end
+
 --[[
 Requirements:
   See: README.md
 --]]
+
+function usage ()
+   print([[
+menu [directory]
+
+  The optional [directory] parameter may be an absolute or relative
+  directory path, with or without a trailing '/'.
+
+  The menu scripts are contained in 'm' subdirectory.
+]])
+end
 
 function show_splash ()
    print(banner)
