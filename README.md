@@ -1,5 +1,11 @@
+[TOC]
 # menu
-Keyboard based menu utility
+
+## Introduction
+
+Menu is a keyboard based menu utility, which allows script files to be
+executed by a single keypress. The menu to be displayed is created
+directly from the directory structure and the script names.
 
 ## Example
 ```
@@ -18,34 +24,52 @@ To go up a menu level: q
 [u] - ubuntu -->
 > ^C^C
 ```
+
+This would be created by a directory structure of the form
+```
+  m/
+    h-housekeeping/
+    o-openwrt/
+    u-ubuntu/
+```
+
+where the directories contain subdirectories and scripts with the same
+naming convention, namely 'menu-key'-'script-label'.
+
 ## Feature Requirements
-- The menu program should:
-  - parse a filesystem tree for the menu structure
-  - allow a menu item to be selected, which will:
-      - execute a script; or
-      - enter a subdirectory.
-  - find and use the 'm' directory in a subdirectory, if specified as
-    an argument, as the top level of the menu tree,
-  - if not specified, use the 'm' directory in the current working
-    directory as the top level of the menu tree
+The menu program should:
+- parse a filesystem tree for the menu structure
+- allow a menu item to be selected, which will:
+    - execute a script; or
+    - enter a subdirectory.
+- find and use the 'm' directory in a subdirectory, if specified as
+  an argument, as the top level of the menu tree,
+- if not specified, use the 'm' directory in the current working
+  directory as the top level of the menu tree
 
-- Menu scripts should:
-  - be easy (and possibly automatically) created.
-  - be standard linux scripts/programs (eg. binaries and
-    executables).
+Menu scripts should:
+- be easy (and possibly automatically) created.
+- be standard linux scripts/programs (eg. binaries and
+  executables).
 
-- Scripts should expect that:
-  - The working directory is where the menu program is called.
+Scripts should expect that:
+- The working directory is where the menu program is called.
 
-- Example script naming scheme example
-  - 1-menu-item-name
-  - 2-another-script
-  - 3-submenu/
+Example script naming scheme example
+- 1-menu-item-name
+- 2-another-script
+- 3-submenu/
 
-- Exceptions/Special Cases
-  - To quit the program, use CTRL-C, CTRL-C (or C-c C-c)
-  - The key 'q' is used the exit the current subdirectory/menu and go
-    up a level.
+Exceptions/Special Cases
+- To quit the program, use CTRL-C, CTRL-C (or C-c C-c)
+- The key 'q' is used the exit the current subdirectory/menu and go
+  up a level.
+
+Possible Issues/Considerations
+- Only printable keys are currently expected to be used. The behavour
+  with nonprintable/control characted in filenames is undefined
+- Restricted to regular alphanumeric keys as menu input.
+- Use of uppercase is undefined.
 
 ### Suggested features
 #### Basic Features
