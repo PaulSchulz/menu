@@ -3,49 +3,26 @@
 local basedir   = "m"
 local directory = {}
 local prompt    = "> "
+local banner    = [[
+ _ __ ___   ___ _ __  _   _
+| '_ ` _ \ / _ \ '_ \| | | |
+| | | | | |  __/ | | | |_| |
+|_| |_| |_|\___|_| |_|\__,_|
+
+To exit:               C-c C-c
+To go up a menu level: q
+]]
 
 --[[
 Requirements:
-
-- The menu program should:
-  - parse filesystem for menu structure
-  - allow a menu item to be selected and execute script, or
-    enter a subdirectory.
-
-- Menu scripts should:
-  - be easy (and possibly automatically) created.
-  - should be standard linux scripts/programs (eg. binaries and
-    executables).
-
-- Scripts should expect that:
-  - The working directory is where the menu program is called.
-
-- Script naming scheme example
-  - 1-menu-item-name
-  - 2-another-script
-  - 3-submenu/
-
-- Should be able to follow symbolic links to other menu trees
-
+  See: README.md
 --]]
 
--- parse directory for menu script
--- display menu
--- get input
--- run script
-
 function show_splash ()
-   print([[
- __  __                  
-|  \/  | ___ _ __  _   _ 
-| |\/| |/ _ \ '_ \| | | |
-| |  | |  __/ | | | |_| |
-|_|  |_|\___|_| |_|\__,_|
-
-To exit: C-c C-c
-]])
+   print(banner)
 end
 
+-- Create dirctory path from directory map 
 function make_path (directory)
    local path = basedir
    for _,v in ipairs(directory) do
@@ -54,20 +31,24 @@ function make_path (directory)
    return path
 end
 
+-- Create map from directory contents
+-- The 'ls -F' adds special postfix character to indicate the
+-- type of file. This is used later. See below for details.
 function scandir (directory)
    local i = 0
    local t = {}
    local path = make_path(directory)
-    local pfile = io.popen('ls -F "'..path..'"')
-    for filename in pfile:lines() do
-        i = i + 1
-        t[i] = filename
---	print(filename)
+   local pfile = io.popen('ls -F "'..path..'"')
+   for filename in pfile:lines() do
+      i = i + 1
+      t[i] = filename
     end
     pfile:close()
     return t
 end
 
+-- Given a directory map, display the contents of that directory as a
+-- menu. Return the key options in a map.
 function show_menu (directory)
    local items = scandir(directory)
    local options = {}
@@ -78,7 +59,6 @@ function show_menu (directory)
       local type      = string.sub(item, -1)
 
       local item      = string.sub(item, 1, string.len(item)-1) -- remove type
-
       --[[
         @ means symbolic link (or that the file has extended attributes).
         * means executable.
@@ -106,6 +86,7 @@ function show_prompt(prompt)
    io.write(prompt)
 end
 
+-- Get a charcter of input from keyboard on UNIX/Linux platform.
 function getch_unix() 
    os.execute("stty cbreak </dev/tty >/dev/tty 2>&1") 
    local key = io.read(1) 
@@ -113,17 +94,11 @@ function getch_unix()
    return(key);       
 end 
 
+-- Get menu input.
 function get_input()
    -- return io.read()
    return getch_unix()
 end
-
--- Test
---[[
-for _, v in scandir("m") do
-   print(v)
-end
---]]
 
 -- Main Loop
 show_splash()
@@ -132,13 +107,6 @@ local run = true
 local line = ""
 while run do
    local options = show_menu(directory)
-
-   -- for k,v in pairs(options) do
-   --    for k1,v1 in pairs(v) do
-   -- 	 print(k,k1,v1)
-   --    end
-   -- end
-
    show_prompt(prompt)
    line = get_input()
    print("")
