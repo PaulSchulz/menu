@@ -3,6 +3,7 @@
 local basedir   = "m"
 local directory = {}
 local prompt    = "> "
+
 local banner    = [[
  _ __ ___   ___ _ __  _   _
 | '_ ` _ \ / _ \ '_ \| | | |
@@ -13,6 +14,7 @@ To exit:               C-c C-c
 To go up a menu level: q
 ]]
 
+--
 local cmd
 if arg[1] then
    basedir = arg[1] .. "/m"
@@ -51,6 +53,47 @@ function show_splash ()
    print(banner)
 end
 
+------------------------------------------------------------------------------
+local predictor_size = 50
+local input_size  = 1      -- character key input
+local output_size = 36     -- probable next selected key
+
+local state = {}
+local predictor_ff = {}
+local predictor_fx = {}
+local predictor_yf = {}
+
+local output_labels = {'0','1','2','3','4','5','6','7','8','9',
+		       'a','b','c','d','e','f','g','h','i','j','k','l','m',
+		       'n','o','p','q','r','s','t','u','v','w','x','y','z',}
+
+-- Initialise matricies
+for i=1,#output_labels do
+   predictor_yf[i] = 0
+   predictor_ff[i] = {}
+   for j=1,predictor_size do
+      predictor_ff[i][j] = 0
+   end
+end
+
+for i=1,predictor_size do
+   predictor_fx[i] = 0
+end
+
+function next_ff ()
+   print()
+end
+
+function next_output ()
+   print()
+end
+
+function next_state (state, input, predictor_hh, predictor_hx)
+   do
+   end
+end
+
+------------------------------------------------------------------------------
 -- Create dirctory path from directory map 
 function make_path (directory)
    local path = basedir
@@ -83,31 +126,36 @@ function show_menu (directory)
    local options = {}
    
    for _, item in ipairs(items) do
-      local shortcut  = string.sub(item, 1, 1)
-      local label     = string.sub(item, 3, string.len(item)-1) 
-      local type      = string.sub(item, -1)
+      if (item == 'env') then
+	 -- TODO: Environment variables
+	 do
+	 end
+      else
+	 local shortcut  = string.sub(item, 1, 1)
+	 local label     = string.sub(item, 3, string.len(item)-1)
+	 local type      = string.sub(item, -1)
 
-      local item      = string.sub(item, 1, string.len(item)-1) -- remove type
-      --[[
-        @ means symbolic link (or that the file has extended attributes).
-        * means executable.
-	= means socket.
-	| means named pipe.
-        > means door.
-        / means directory.
-      --]]
+	 local item      = string.sub(item, 1, string.len(item)-1) -- remove type
+	 --[[
+	    @ means symbolic link (or that the file has extended attributes).
+	    * means executable.
+	    = means socket.
+	    | means named pipe.
+	    > means door.
+	    / means directory.
+	 --]]
 
-      if type == '/' then
-	 label = label .. " -->"
-      elseif type == "*" then
-	 label = label
+	 if type == '/' then
+	    label = label .. " -->"
+	 elseif type == "*" then
+	    label = label
+	 end
+	 options[shortcut] = {type=type,
+			      item=item,
+			      label=label}
+	 print("["..shortcut.."] - "..label)
       end
-      options[shortcut] = {type=type,
-			   item=item,
-			   label=label}
-      print("["..shortcut.."] - "..label)
    end
-
    return options
 end
 
